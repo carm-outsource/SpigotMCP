@@ -9,6 +9,8 @@ import cc.carm.plugin.spigotmcp.service.MCPService;
 import net.coreprotect.CoreProtect;
 import org.bukkit.Bukkit;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,8 +62,7 @@ public class Main extends EasyPlugin {
 
             service.registerTool(
                     "player-session-lookup",
-                    "This will perform a session lookup on a single player. " +
-                            "Return a list with the order of \"time\", \"user\", \"x\", \"y\", \"z\", \"world-id\", \"type\", \"action\"",
+                    "This will perform a session lookup on a single player. ",
                     tool -> {
                         tool.inputs(params -> {
                             params.add(
@@ -84,7 +85,16 @@ public class Main extends EasyPlugin {
                                     .orElse(0);
 
                             List<String[]> sessions = CoreProtect.getInstance().getAPI().sessionLookup(user, time);
-                            return ToolResult.success(sessions.toString());
+
+                            List<String> pettyOutput = new ArrayList<>();
+                            for (String[] session : sessions) {
+                                pettyOutput.add(String.format(
+                                        "\"%s 在 %s 登录于 世界 %s(%s, %s, %s)\"",
+                                        session[1], timestampToString(Long.parseLong(session[0])),
+                                        session[5], session[2], session[3], session[4]
+                                ));
+                            }
+                            return ToolResult.success(String.join(", ", pettyOutput.toArray(new String[0])));
                         });
                     });
 
@@ -124,4 +134,10 @@ public class Main extends EasyPlugin {
         return instance;
     }
 
+
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public static String timestampToString(long timestamp) {
+        return FORMATTER.format(java.time.Instant.ofEpochSecond(timestamp).atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
+    }
 }
