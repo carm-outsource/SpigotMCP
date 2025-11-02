@@ -1,0 +1,10 @@
+main: cc.carm.plugin.spigotmcp.Main
+name: ${project.name}
+
+version: ${project.version}
+description: ${project.description}
+website: ${project.url}
+api-version: 1.16
+
+authors:
+  - CarmJos
